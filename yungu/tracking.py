@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
+import os
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+import pandas as pd
 
 
 
@@ -93,3 +95,42 @@ def get_translation(t, translation_xy, flags):
     return translation_xy
 
 def db_map():
+    #이미지 디렉토리까지가서 읽기.
+    path = "/home/geonwoo/Documents/Rist/data/Part2"
+    os.chdir(path)
+    files = os.listdir(path)
+
+    #DB좌표 만들기.
+    cor_list = []
+    i = 0
+    for data in files :
+        #.jpg없에기
+        data = data.replace('.JPG','')
+        tmp = data.split('_')
+        cor_list.append([])
+        for t in tmp :
+            t = int(t)
+            cor_list[i].append(t)
+        i = i + 1
+
+    x, y = zip(*cor_list)
+    x ,y = normalize(x,y)
+    plt.scatter(x,y,10)
+    # plt.show()
+    
+
+
+def normalize(cor_x,cor_y):
+    x = list(cor_x)
+    y = list(cor_y)
+    tmp_max = max(x)
+    tmp_min = min(x)
+    for i in range(len(x))  :
+        x[i] = (x[i] - tmp_min) / (tmp_max - tmp_min)
+    
+    tmp_max = max(y)
+    tmp_min = min(y)
+    for i in range(len(y))  :
+        y[i] = (y[i] - tmp_min) / (tmp_max - tmp_min)
+
+    return x,y

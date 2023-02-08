@@ -25,11 +25,12 @@ nfeatures = 1000
 prev_rot_flag = False
 flags = 1
 
+track.db_map()
+query_cor_list = []
 for i in range(1, num_images):
     
     #################### Method 1 #########################
     src_pts, dst_pts = track.calc_optical_flow(images[i-1], images[i])
-    
     
     # #################### Method 2 #########################
     # kp1, des1 = track.feature_detection(images[i-1], nfeatures)
@@ -47,11 +48,16 @@ for i in range(1, num_images):
     curr_rot_flag, flags = track.detect_rotation(prev_rot_flag, flags, angle, 80)
   
     translation_xy = track.get_translation(t, translation_xy, flags)
-    print(translation_xy, '\n')
-    
+    int_traslation_xy = [int(x) for x in translation_xy]
+    query_cor_list.append(int_traslation_xy)
     
     prev_rot_flag = curr_rot_flag
     
     plt.scatter(translation_xy[0], translation_xy[1])
     plt.annotate(str(i),xy=(translation_xy[0],translation_xy[1]), xytext=(translation_xy[0]+0.05,translation_xy[1]+0.05))
+print(query_cor_list)
+x, y = zip(*query_cor_list)
+print("query cor", x)
+query_norm_x, query_norm_y = track.normalize(x, y)
+plt.scatter(query_norm_x,query_norm_y,10,c = 'green')
 plt.show()
