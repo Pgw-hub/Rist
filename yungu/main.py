@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import tracking as track
+import natsort
 
 num_images = 55
 images = []

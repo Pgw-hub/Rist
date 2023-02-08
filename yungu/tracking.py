@@ -5,6 +5,7 @@ import math
 import os
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import pandas as pd
+import natsort
 
     
 def feature_detection(img, nfeatures):
@@ -103,6 +104,7 @@ def db_map(answer_cor):
     path = "/home/geonwoo/Documents/Rist/data/Part2"
     os.chdir(path)
     files = os.listdir(path)
+    files = natsort.natsorted(files)
 
     #DB좌표 만들기.
     cor_list = []
