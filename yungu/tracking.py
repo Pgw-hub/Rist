@@ -85,10 +85,10 @@ def get_translation(t, translation_xy, flags):
     x_translation = t[0][0] / t[2][0]
     y_translation = t[1][0] / t[2][0]
     
-    if flags == 0:
+    if flags == 0: #회전 후
         translation_xy[0] += x_translation
         translation_xy[1] += y_translation
-    else:
+    else: #회전 전
         translation_xy[0] += y_translation
         translation_xy[1] += x_translation
         
@@ -121,7 +121,7 @@ def db_map():
     print()
     print("Number of DB",len(x))
     print()
-    plt.scatter(x,y,10)
+    plt.scatter(x,y,30)
     # plt.show()
     
 

@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
 import tracking as track
 
 num_images = 55
@@ -25,10 +24,15 @@ nfeatures = 1000
 prev_rot_flag = False
 flags = 1
 
+#input answer_query
+answer = int(input("디비와 매칭시킬 퀴리이미지의 인덱스를 입력하시오 "))
+
 #db_normalize and plot
 track.db_map()
 
+#trakcing
 query_cor_list = []
+query_color = []
 for i in range(1, num_images):
     
     #################### Method 1 #########################
@@ -46,24 +50,44 @@ for i in range(1, num_images):
     R, t, E_update = track.get_Rt(src_pts, dst_pts, 301, (316., 251.), E_update)
    
     curr_rot_flag, flags = track.detect_rotation(prev_rot_flag, flags, angle, 80)
+    if curr_rot_flag == True and flags == 0 : rot_index = i
   
     translation_xy = track.get_translation(t, translation_xy, flags)
     
     int_traslation_xy = [int(x) for x in translation_xy]
+    print("real query_corordinate", int_traslation_xy)
     query_cor_list.append(int_traslation_xy)
     
     prev_rot_flag = curr_rot_flag
+    if i == answer : 
+        query_color.append(251)
+    else : 
+        query_color.append(0)
+
     
     # plt.scatter(translation_xy[0], translation_xy[1])
     # plt.annotate(str(i),xy=(translation_xy[0],translation_xy[1]), xytext=(translation_xy[0]+0.05,translation_xy[1]+0.05))
 
+
 #query_normalize
 x, y = zip(*query_cor_list)
 query_norm_x, query_norm_y = track.normalize(x, y)
+#쿼리 좌표 처리.
+for i in range(0,len(query_norm_x)) :
+    if i >= rot_index : #회전 이후
+        query_norm_x[i] = query_norm_x[i] * 0.95
+        query_norm_y[i] = 1.0
+    else : #회전 이전
+        query_norm_x[i] = 0.0
+        query_norm_y[i] = query_norm_y[i] * 1.6
+
+
 print("Query norm cor_x = ", query_norm_x)
 print()
 print("Query norm cor_y = ", query_norm_y)
 print()
 print("Number of Query",len(query_norm_x))
-plt.scatter(query_norm_x,query_norm_y,10,c = 'green')
+print("query_color = ", query_color)
+plt.scatter(query_norm_x,query_norm_y,10,query_color)
+
 plt.show()
