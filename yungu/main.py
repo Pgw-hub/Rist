@@ -25,7 +25,9 @@ nfeatures = 1000
 prev_rot_flag = False
 flags = 1
 
+#db_normalize and plot
 track.db_map()
+
 query_cor_list = []
 for i in range(1, num_images):
     
@@ -37,8 +39,6 @@ for i in range(1, num_images):
     # kp2, des2 = track.feature_detection(images[i], nfeatures)
     
     # src_pts, dst_pts, good_matches = track.feature_matching(kp1, kp2, des1, des2, "BF")
-    
-    
     mean_direction_vector = track.get_mean_direction_vector(src_pts, dst_pts)
     
     angle = track.get_angle(mean_direction_vector)
@@ -48,16 +48,22 @@ for i in range(1, num_images):
     curr_rot_flag, flags = track.detect_rotation(prev_rot_flag, flags, angle, 80)
   
     translation_xy = track.get_translation(t, translation_xy, flags)
+    
     int_traslation_xy = [int(x) for x in translation_xy]
     query_cor_list.append(int_traslation_xy)
     
     prev_rot_flag = curr_rot_flag
     
-    plt.scatter(translation_xy[0], translation_xy[1])
-    plt.annotate(str(i),xy=(translation_xy[0],translation_xy[1]), xytext=(translation_xy[0]+0.05,translation_xy[1]+0.05))
-print(query_cor_list)
+    # plt.scatter(translation_xy[0], translation_xy[1])
+    # plt.annotate(str(i),xy=(translation_xy[0],translation_xy[1]), xytext=(translation_xy[0]+0.05,translation_xy[1]+0.05))
+
+#query_normalize
 x, y = zip(*query_cor_list)
-print("query cor", x)
 query_norm_x, query_norm_y = track.normalize(x, y)
+print("Query norm cor_x = ", query_norm_x)
+print()
+print("Query norm cor_y = ", query_norm_y)
+print()
+print("Number of Query",len(query_norm_x))
 plt.scatter(query_norm_x,query_norm_y,10,c = 'green')
 plt.show()

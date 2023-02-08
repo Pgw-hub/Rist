@@ -115,6 +115,12 @@ def db_map():
 
     x, y = zip(*cor_list)
     x ,y = normalize(x,y)
+    print("DB norm cor_x = ", x)
+    print()
+    print("DB norm cor_y = ", y)
+    print()
+    print("Number of DB",len(x))
+    print()
     plt.scatter(x,y,10)
     # plt.show()
     
