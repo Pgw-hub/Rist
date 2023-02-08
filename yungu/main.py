@@ -27,9 +27,6 @@ flags = 1
 #input answer_query
 answer = int(input("디비와 매칭시킬 퀴리이미지의 인덱스를 입력하시오 "))
 
-#db_normalize and plot
-track.db_map()
-
 #trakcing
 query_cor_list = []
 query_color = []
@@ -55,7 +52,7 @@ for i in range(1, num_images):
     translation_xy = track.get_translation(t, translation_xy, flags)
     
     int_traslation_xy = [int(x) for x in translation_xy]
-    print("real query_corordinate", int_traslation_xy)
+    # print("real query_coordinate", int_traslation_xy)
     query_cor_list.append(int_traslation_xy)
     
     prev_rot_flag = curr_rot_flag
@@ -81,13 +78,22 @@ for i in range(0,len(query_norm_x)) :
         query_norm_x[i] = 0.0
         query_norm_y[i] = query_norm_y[i] * 1.6
 
+#norm_query의 answer좌표 받아와서 dbmap에 넘기기.
+answer_cor = []
+for i in range(0,len(query_norm_x)) :
+    if i == answer - 1 :
+        answer_cor.append(query_norm_x[i])
+        answer_cor.append(query_norm_y[i])
+print("answer_cor = ",answer_cor)
 
-print("Query norm cor_x = ", query_norm_x)
-print()
-print("Query norm cor_y = ", query_norm_y)
-print()
-print("Number of Query",len(query_norm_x))
-print("query_color = ", query_color)
+#db_normalize and plot
+track.db_map(answer_cor)
+
+# print("Query norm cor_x = ", query_norm_x)
+# print()
+# print("Query norm cor_y = ", query_norm_y)
+# print()
+# print("Number of Query",len(query_norm_x))
 plt.scatter(query_norm_x,query_norm_y,10,query_color)
 
 plt.show()

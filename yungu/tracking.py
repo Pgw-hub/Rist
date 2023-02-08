@@ -6,8 +6,6 @@ import os
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import pandas as pd
 
-
-
     
 def feature_detection(img, nfeatures):
     sift = cv2.xfeatures2d.SIFT_create(nfeatures)
@@ -94,7 +92,13 @@ def get_translation(t, translation_xy, flags):
         
     return translation_xy
 
-def db_map():
+def db_map(answer_cor):
+    #answer range 설정해주기
+    x_range_left = answer_cor[0] - 0.3
+    x_range_right = answer_cor[0] + 0.3
+    y_range_bottom = answer_cor[1] - 0.3
+    y_range_top =  answer_cor[1] + 0.3
+
     #이미지 디렉토리까지가서 읽기.
     path = "/home/geonwoo/Documents/Rist/data/Part2"
     os.chdir(path)
@@ -115,12 +119,24 @@ def db_map():
 
     x, y = zip(*cor_list)
     x ,y = normalize(x,y)
+    
+    print()
+    print("RANGE_X = ",x_range_left, " ~ ", x_range_right)
+    print("RANGE_Y = ", y_range_bottom, " ~ ", y_range_top)
+    print()
+
+    db_answer_index = []
+    for i in range(0,len(x)) :
+        if x_range_left < x[i] and x[i] < x_range_right and y_range_bottom < y[i] and y[i] < y_range_top :
+            db_answer_index.append(i)
+    
     print("DB norm cor_x = ", x)
     print()
     print("DB norm cor_y = ", y)
     print()
-    print("Number of DB",len(x))
-    print()
+    print("matching DB index is ",db_answer_index)
+    for i in db_answer_index :
+        print(i , " = ", x[i], " , ", y[i])
     plt.scatter(x,y,30)
     # plt.show()
     
