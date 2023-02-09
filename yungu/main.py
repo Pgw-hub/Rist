@@ -31,6 +31,7 @@ answer = int(input("디비와 매칭시킬 퀴리이미지의 인덱스를 입�
 #trakcing
 query_cor_list = []
 query_color = []
+query_size = []
 for i in range(1, num_images):
     
     #################### Method 1 #########################
@@ -58,9 +59,11 @@ for i in range(1, num_images):
     
     prev_rot_flag = curr_rot_flag
     if i == answer : 
-        query_color.append(251)
+        query_color.append(40)
+        query_size.append(80)
     else : 
         query_color.append(0)
+        query_size.append(10)
 
     
     # plt.scatter(translation_xy[0], translation_xy[1])
@@ -73,7 +76,8 @@ query_norm_x, query_norm_y = track.normalize(x, y)
 #쿼리 좌표 처리.
 for i in range(0,len(query_norm_x)) :
     if i >= rot_index : #회전 이후
-        query_norm_x[i] = query_norm_x[i] * 0.95
+        query_norm_x[i] = (query_norm_x[i] * 0.95) * 5
+        
         query_norm_y[i] = 1.0
     else : #회전 이전
         query_norm_x[i] = 0.0
@@ -90,11 +94,13 @@ print("answer_cor = ",answer_cor)
 #db_normalize and plot
 track.db_map(answer_cor)
 
+# plt.figure(figsize=(15, 6))
+
 # print("Query norm cor_x = ", query_norm_x)
 # print()
 # print("Query norm cor_y = ", query_norm_y)
 # print()
 # print("Number of Query",len(query_norm_x))
-plt.scatter(query_norm_x,query_norm_y,10,query_color)
+plt.scatter(query_norm_x,query_norm_y,query_size,query_color)
 
 plt.show()

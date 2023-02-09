@@ -122,6 +122,8 @@ def db_map(answer_cor):
     x, y = zip(*cor_list)
     x ,y = normalize(x,y)
     
+    x = [x[i] * 5 for i in range(len(x))]
+    
     print()
     print("RANGE_X = ",x_range_left, " ~ ", x_range_right)
     print("RANGE_Y = ", y_range_bottom, " ~ ", y_range_top)
@@ -139,7 +141,8 @@ def db_map(answer_cor):
     print("matching DB index is ",db_answer_index)
     for i in db_answer_index :
         print(i , " = ", x[i], " , ", y[i])
-    plt.scatter(x,y,30)
+    plt.scatter(x,y,50)
+    # plt.figure(figsize=(15, 6))
     # plt.show()
     
 
