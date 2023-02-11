@@ -91,8 +91,6 @@ def get_translation(t, translation_xy, flags):
         
     return translation_xy
 
-
-
 def db_map():
     #이미지 디렉토리까지가서 읽기.
     path = "/home/geonwoo/Documents/Rist/data/Part2"
@@ -116,6 +114,8 @@ def db_map():
     x, y = zip(*cor_list)
     x ,y = normalize(x,y)
 
+    x = [x[i] * 5 for i in range(len(x))]
+
     plt.figure(figsize=(18, 6))
     plt.scatter(x,y,100, c='blue')
     return x, y
@@ -134,64 +134,6 @@ def db_matching(db_traslation_x, db_traslation_y, answer_cor, answer_range) :
     print("matching DB index is",db_answer_index)
     for i in db_answer_index :
         print(i , " = ", db_traslation_x[i], " , ", db_traslation_y[i])
-    
-
-
-"""
-def db_map(answer_cor, answer_range):
-    #answer range 설정해주기
-    x_range_left = answer_cor[0] - answer_range
-    x_range_right = answer_cor[0] + answer_range
-    y_range_bottom = answer_cor[1] - answer_range
-    y_range_top =  answer_cor[1] + answer_range
-
-    #이미지 디렉토리까지가서 읽기.
-    path = "/home/geonwoo/Documents/Rist/data/Part2"
-    os.chdir(path)
-    files = os.listdir(path)
-    files = natsort.natsorted(files)
-
-    #DB좌표 만들기.
-    cor_list = []
-    i = 0
-    for data in files :
-        #.jpg없에기
-        data = data.replace('.JPG','')
-        tmp = data.split('_')
-        cor_list.append([])
-        for t in tmp :
-            t = int(t)
-            cor_list[i].append(t)
-        i = i + 1
-
-    x, y = zip(*cor_list)
-    x ,y = normalize(x,y)
-    
-    x = [x[i] * 5 for i in range(len(x))]
-
-    print()
-    print("Introduction about Range")
-    print("( RANGE_X = ",x_range_left, " ~ ", x_range_right, " , RANGE_Y = ", y_range_bottom, " ~ ", y_range_top, " )")
-    print()
-
-    db_answer_index = []
-    for i in range(0,len(x)) :
-        if x_range_left < x[i] and x[i] < x_range_right and y_range_bottom < y[i] and y[i] < y_range_top :
-            db_answer_index.append(i)
-    
-    # print("DB norm cor_x = ", x)
-    # print()
-    # print("DB norm cor_y = ", y)
-    # print()
-    print("matching DB index is",db_answer_index)
-    for i in db_answer_index :
-        print(i , " = ", x[i], " , ", y[i])
-    plt.figure(figsize=(18, 6))
-    plt.scatter(x,y,100, c='blue')
-"""
-
-
-
 
 def normalize(cor_x,cor_y):
     x = list(cor_x)
@@ -208,19 +150,6 @@ def normalize(cor_x,cor_y):
 
     return x,y
 
-    
-
-def normalize_query(cor_x,cor_y,x_max,x_min,y_max,y_min):
-    x = list(cor_x)
-    y = list(cor_y)
-    for i in range(len(x))  :
-        x[i] = (x[i] - x_min) / (x_max - x_min)
-    
-    for i in range(len(y))  :
-        y[i] = (y[i] - y_min) / (y_max - y_min)
-
-    return x,y
-
 def normalize_query_point(int_translation_xy,x_max,x_min,y_max,y_min):
     int_translation_xy[0] = (int_translation_xy[0] - x_min) / (x_max - x_min)
     int_translation_xy[1] = (int_translation_xy[1] - y_min) / (y_max - y_min)
@@ -228,11 +157,21 @@ def normalize_query_point(int_translation_xy,x_max,x_min,y_max,y_min):
 
 def final_query_point(norm_int_traslation_xy, rot_flag) :
     if rot_flag == True : #회전 이후
-        norm_int_traslation_xy[0] = (norm_int_traslation_xy[0] * 0.95)
+        norm_int_traslation_xy[0] = (norm_int_traslation_xy[0] - 0.085) * 5.45 # 0.085 -> x = 0에서 시작하게, 5.45는 search range를 위해 늘리기
         norm_int_traslation_xy[1] = 1.0
     else : #회전 이전
         norm_int_traslation_xy[0] = 0.0
-        norm_int_traslation_xy[1] = norm_int_traslation_xy[1] * 1.6
+        norm_int_traslation_xy[1] = norm_int_traslation_xy[1] * 1.9
     
     return norm_int_traslation_xy
         
+def check_gap(forgap, rot_index = 1) : #checking x_cor gap
+    prev = forgap[rot_index - 1]
+    for i in range(1, len(forgap)) :
+        if i >= rot_index :
+            if i == rot_index : prev = forgap[i][0]
+            else :
+                curr = forgap[i][0]
+                gap = prev - curr
+                print("gap(", i - 1, " , ",i, ") = ", gap)
+                prev = curr
