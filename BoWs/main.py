@@ -18,6 +18,8 @@ args = parser.parse_args()
 mode = args.mode
 vocab_path = args.vocab_path
 
+
+start_time = time.time()
 #이미지 읽어오기
 image_files = [filename for filename in os.listdir('test') if filename.endswith('.JPG')]
 images = [cv2.imread(os.path.join('test', filename)) for filename in image_files]
@@ -33,8 +35,11 @@ elif mode == 'load' :
 #쿼리 읽어와서 가장 비슷한 거 비교하기.
 query_image = cv2.imread("query/undistorted_mid.jpg")
 similar_image = bow.find_similar_image(query_image, images, vocabulary)
+end_time = time.time()
+elapsed_time = end_time - start_time
 
 #결과 표시
+print("elapsed_time : ",elapsed_time)
 similar_image = cv2.resize(similar_image,(640,480))
 query_image = cv2.resize(query_image,(640,480))
 cv2.imshow("similar_img in DB", similar_image)
