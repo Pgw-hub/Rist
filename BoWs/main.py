@@ -1,69 +1,42 @@
 import cv2
+import os
+from PIL import Image
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+import time
+import matplotlib.pyplot as plt
+import argparse
+import backofwords as bow
 
-def sift_features(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    sift = cv2.SIFT_create()
-    keypoints, descriptors = sift.detectAndCompute(gray, None)
-    return keypoints, descriptors
+#인자 파싱
+parser = argparse.ArgumentParser(description='Generate or load vocabulary.') 
+parser.add_argument('--mode', type = str, default='generate', help = 'generate or load')
+parser.add_argument('--vocab_path', type = str, default = 'dictionary/vocabulary.npy', help = 'path to vocabulary file')
 
-def build_vocabulary(images, k):
-    descriptors = []
-    for image in images :
-        keypoints, descriptor = sift_features(image)
-        descriptors.append(descriptor)
-    descriptors = np.vstack(descriptor)
-    kmeans = KMeans(n_cluster = k)
-    kmeans.fit(descriptors)
-    vocabulary = kmeans.cluster_centers_
+args = parser.parse_args()
+mode = args.mode
+vocab_path = args.vocab_path
 
-def find_similar_image(query_image, images, vocabulary): 
-    similarities = []
-    query_keypoints, query_descriptors = sift_features(query_image)
-    query_histogram = get_bow_histogram(query_descriptors, vocabulary)
-    query_histogram = normalize_histogram(query_histogram)
+#이미지 읽어오기
+image_files = [filename for filename in os.listdir('test') if filename.endswith('.JPG')]
+images = [cv2.imread(os.path.join('test', filename)) for filename in image_files]
 
-    for i, image enumerate(images):
-        similaritiy = compute_image_similarity(query_image, image, vocabulary)
-        similarities.append((i,similaritiy))
+k = 50
+#vocabulary 설정
+if mode == 'generate' :
+    vocabulary = bow.build_vocabulary(images, k)
+    np.save('dictionary/vocabulary.npy', vocabulary)
+elif mode == 'load' :  
+    vocabulary = np.load('dictionary/vocabulary.npy')
 
-    similarities = sorted(similarities, key = lambda x : x[1])
-    return images[similarities[0][0]]
+#쿼리 읽어와서 가장 비슷한 거 비교하기.
+query_image = cv2.imread("query/undistorted_mid.jpg")
+similar_image = bow.find_similar_image(query_image, images, vocabulary)
 
-def get_bow_histogram(descriptors, vocabulary) : 
-    k = len(vocabulary)
-    bow_histogram = np.zeros(k)
-    for descriptor in descriptors :
-        distances = np,linalg.norm(vocabulary - descriptor, axis = 1)
-        closest_cluster_index = np.argmin(distances)
-        bow_histogram[closest_cluster_index] += 1
-    
-    return bow_histogram
-
-def normalize_histogram(histogram):
-    norm = np.linalg.norm(histogram)
-    if norm == 0:
-        return histogram
-    return histogram / norm
-
-def compute_image_similarity(image1, image2, vocabulary) :
-    k = len(vocabulary)
-    image1_keypoints, image1_descriptors = sift_features(image1)
-    image2_keypoints, image2_descriptors = sift_features(image2)
-    image1_histogram = get_bow_histogram(image1_descriptors, vocabulary) 
-    image2_histogram = get_bow_histogram(image2_descriptors, vocabulary)  
-    image1_histogram = normalize_histogram(image1_histogram)
-    image2_histogram = normalize_histogram(image2_histogram)
-    distances = np.linalg.norm(image1_histogram - image2_histogram)
-    return distances
-
-
-images = [cv2.imread(f"image{i}.jpg") for i in range(1, 61)]
-k = 10
-vocabulary = build_vocabulary(images, k)
-
-query_image = cv2.imread("query_image.jpg")
-
-similar_image = find_similar_image(query_image, images, vocabulary)
+#결과 표시
+similar_image = cv2.resize(similar_image,(640,480))
+query_image = cv2.resize(query_image,(640,480))
+cv2.imshow("similar_img in DB", similar_image)
+cv2.imshow("query_img",query_image)
+cv2.waitKey(0)
